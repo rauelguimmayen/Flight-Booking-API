@@ -1,0 +1,147 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { page: 'search' }) %>
+
+<div class="container py-4">
+  <!-- Back + Summary -->
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="/" class="btn btn-light rounded-circle p-2">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h5 class="fw-800 mb-0">
+        <%= outbound.originCode || outbound.originDisplay || 'All' %>
+        <i class="bi bi-arrow-right mx-1"></i>
+        <%= outbound.destinationCode || outbound.destinationDisplay || 'All' %>
+      </h5>
+      <small class="text-muted">
+        <%= query.departDate ? new Date(query.departDate).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) : '' %>
+        · <%= (parseInt(passengers.adults)||1) + (parseInt(passengers.children)||0) + (parseInt(passengers.infants)||0) %> passenger(s)
+        · <%= cabinClass.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase()) %>
+      </small>
+    </div>
+  </div>
+
+  <!-- Compact Search -->
+  <div class="mb-4">
+    <%- include('../partials/search_form') %>
+  </div>
+
+  <div class="row g-4">
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="bg-white rounded-4 border p-4 shadow-sm sticky-top" style="top:80px;">
+        <h6 class="fw-700 mb-3">Filter Results</h6>
+
+        <!-- Price -->
+        <div class="mb-4">
+          <label class="form-label fw-600 small">Max Price: <span id="priceVal">$2000</span></label>
+          <input type="range" class="form-range" id="priceFilter" min="100" max="2000" value="2000" step="50" />
+        </div>
+
+        <!-- Stops -->
+        <div class="mb-4">
+          <label class="form-label fw-600 small">Stops</label>
+          <div class="form-check">
+            <input class="form-check-input stop-filter" type="checkbox" value="nonstop" id="stopNone">
+            <label class="form-check-label small" for="stopNone">Non-stop</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input stop-filter" type="checkbox" value="1stop" id="stop1">
+            <label class="form-check-label small" for="stop1">1 Stop</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input stop-filter" type="checkbox" value="any" id="stopAny">
+            <label class="form-check-label small" for="stopAny">2+ Stops</label>
+          </div>
+        </div>
+
+        <!-- Airlines -->
+        <div class="mb-3">
+          <label class="form-label fw-600 small">Airlines</label>
+          <div id="airlineFilters"></div>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm w-100 rounded-3" id="resetFilters">
+          <i class="bi bi-x-circle me-1"></i>Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="col-lg-9">
+      <!-- Sort + Mobile Filter -->
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <small class="text-muted" id="resultsCount">Searching...</small>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary btn-sm rounded-3 d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+            <i class="bi bi-sliders me-1"></i>Filters
+          </button>
+          <div class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-outline-secondary sort-btn active" data-sort="best">Best</button>
+            <button class="btn btn-outline-secondary sort-btn" data-sort="price">Cheapest</button>
+            <button class="btn btn-outline-secondary sort-btn" data-sort="duration">Fastest</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Skeleton -->
+      <div id="loadingSkeleton">
+        <% for(let i=0; i<4; i++) { %>
+        <div class="bg-white rounded-4 border p-4 mb-3 placeholder-glow">
+          <div class="d-flex gap-3 align-items-center">
+            <div class="placeholder rounded-3" style="width:44px;height:44px"></div>
+            <div class="flex-grow-1">
+              <div class="placeholder col-4 mb-2 rounded"></div>
+              <div class="placeholder col-3 rounded"></div>
+            </div>
+            <div class="placeholder col-2 rounded-3" style="height:36px"></div>
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Flights List -->
+      <div id="flightsList" class="d-none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Filter Offcanvas -->
+<div class="offcanvas offcanvas-end" id="filterOffcanvas">
+  <div class="offcanvas-header border-bottom">
+    <h6 class="offcanvas-title fw-700">Filters</h6>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="mb-4">
+      <label class="form-label fw-600 small">Max Price: <span id="priceValMobile">$2000</span></label>
+      <input type="range" class="form-range" id="priceFilterMobile" min="100" max="2000" value="2000" step="50" />
+    </div>
+    <div class="mb-4">
+      <label class="form-label fw-600 small">Stops</label>
+      <div class="form-check">
+        <input class="form-check-input stop-filter-m" type="checkbox" value="nonstop">
+        <label class="form-check-label small">Non-stop</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input stop-filter-m" type="checkbox" value="1stop">
+        <label class="form-check-label small">1 Stop</label>
+      </div>
+    </div>
+    <button class="btn btn-primary w-100 rounded-3" data-bs-dismiss="offcanvas">Apply Filters</button>
+  </div>
+</div>
+
+<script>
+  // Pass server data to client JS
+  window.SEARCH_PARAMS = {
+    origin: '<%= (outbound.originCode || query.originCode || "JFK").replace(/'/g,"") %>',
+    destination: '<%= (outbound.destinationCode || query.destinationCode || "LAX").replace(/'/g,"") %>',
+    passengers: <%- JSON.stringify(passengers) %>,
+    cabinClass: '<%= cabinClass %>',
+    tripType: '<%= tripType %>'
+  };
+</script>
+<script src="/js/search.js"></script>
+
+<%- include('../partials/footer') %>

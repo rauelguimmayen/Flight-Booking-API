@@ -1,0 +1,144 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { page: 'bookings' }) %>
+
+<div class="container py-5">
+  <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3 mb-5">
+    <div>
+      <h1 class="fw-800 mb-1">My Bookings</h1>
+      <p class="text-muted mb-0">Manage and track all your trips</p>
+    </div>
+    <a href="/" class="btn btn-primary rounded-3 shadow-sm fw-700">
+      <i class="bi bi-plus-lg me-2"></i>Book New Flight
+    </a>
+  </div>
+
+  <!-- Search -->
+  <div class="position-relative mb-4">
+    <i class="bi bi-search position-absolute text-muted" style="left:14px;top:50%;transform:translateY(-50%)"></i>
+    <input type="text" class="form-control rounded-3 ps-5 py-3" id="bookingSearch"
+      placeholder="Search by reference, name, or route..." />
+  </div>
+
+  <!-- Status Filter Tabs -->
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    <button class="btn btn-sm status-filter active" data-status="all">All (<%= bookings.length %>)</button>
+    <button class="btn btn-sm status-filter" data-status="confirmed">Confirmed</button>
+    <button class="btn btn-sm status-filter" data-status="cancelled">Cancelled</button>
+    <button class="btn btn-sm status-filter" data-status="completed">Completed</button>
+  </div>
+
+  <% if (bookings.length === 0) { %>
+  <!-- Empty State -->
+  <div class="text-center py-5">
+    <i class="bi bi-airplane text-muted" style="font-size:4rem;opacity:0.3"></i>
+    <h4 class="fw-700 mt-3 mb-2">No bookings yet</h4>
+    <p class="text-muted">Start exploring destinations and book your first flight!</p>
+    <a href="/" class="btn btn-primary rounded-3 mt-2">Search Flights</a>
+  </div>
+  <% } else { %>
+
+  <!-- Bookings List -->
+  <div id="bookingsList">
+    <% bookings.forEach(booking => {
+      const statusColors = {
+        confirmed: 'success',
+        pending: 'warning',
+        cancelled: 'danger',
+        completed: 'secondary'
+      };
+      const statusIcons = {
+        confirmed: 'bi-check-circle-fill',
+        pending: 'bi-clock-fill',
+        cancelled: 'bi-x-circle-fill',
+        completed: 'bi-check-circle'
+      };
+      const color = statusColors[booking.status] || 'secondary';
+      const icon = statusIcons[booking.status] || 'bi-circle';
+    %>
+    <div class="booking-card bg-white rounded-4 border shadow-sm mb-3 hover-lift cursor-pointer"
+      data-status="<%= booking.status %>"
+      data-ref="<%= (booking.booking_reference||'').toLowerCase() %>"
+      data-name="<%= (booking.passenger_name||'').toLowerCase() %>"
+      data-route="<%= ((booking.outbound_flight&&booking.outbound_flight.origin_code)||'') + ((booking.outbound_flight&&booking.outbound_flight.destination_code)||'') %>"
+      onclick="showBookingDetail('<%= booking._id %>')"
+    >
+      <div class="card-body p-4">
+        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3">
+          <!-- Airline Badge -->
+          <div class="airline-badge-lg bg-primary text-white rounded-3 px-3 py-2 fw-800 flex-shrink-0 text-center" style="min-width:56px">
+            <%= (booking.outbound_flight && booking.outbound_flight.airline_code) || '??' %>
+          </div>
+
+          <!-- Info -->
+          <div class="flex-grow-1 min-w-0">
+            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+              <span class="fw-800">
+                <%= (booking.outbound_flight && booking.outbound_flight.origin_code) || '???' %>
+                <i class="bi bi-arrow-right mx-1 small"></i>
+                <%= (booking.outbound_flight && booking.outbound_flight.destination_code) || '???' %>
+              </span>
+              <span class="badge bg-<%= color %> bg-opacity-15 text-<%= color %> border border-<%= color %> border-opacity-25 rounded-pill">
+                <i class="bi <%= icon %> me-1"></i><%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
+              </span>
+            </div>
+            <div class="text-muted small d-flex flex-wrap gap-3">
+              <span><i class="bi bi-airplane me-1"></i><%= (booking.outbound_flight && booking.outbound_flight.airline) || '' %></span>
+              <span><i class="bi bi-tag me-1"></i>Ref: <strong><%= booking.booking_reference %></strong></span>
+              <span><i class="bi bi-people me-1"></i><%= booking.passengers_count %> pax</span>
+              <span><i class="bi bi-star me-1"></i><%= (booking.cabin_class||'economy').replace('_',' ') %></span>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="text-end flex-shrink-0">
+            <div class="fw-800 fs-5 text-primary">$<%= booking.total_price %></div>
+            <div class="text-muted small text-capitalize"><%= (booking.cabin_class||'economy').replace('_',' ') %></div>
+          </div>
+
+          <i class="bi bi-chevron-right text-muted d-none d-sm-block"></i>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<!-- Booking Detail Offcanvas -->
+<div class="offcanvas offcanvas-end" style="width:480px;max-width:100vw;" id="bookingDetailOffcanvas">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-700">Booking Details</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body" id="bookingDetailBody">
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Store bookings data for client-side use
+  window.BOOKINGS_DATA = <%- JSON.stringify(bookings.map(b => ({
+    _id: b._id,
+    booking_reference: b.booking_reference,
+    status: b.status,
+    trip_type: b.trip_type,
+    passenger_name: b.passenger_name,
+    passenger_email: b.passenger_email,
+    passenger_phone: b.passenger_phone,
+    passengers_count: b.passengers_count,
+    cabin_class: b.cabin_class,
+    outbound_flight: b.outbound_flight,
+    baggage_options: b.baggage_options,
+    selected_seats: b.selected_seats,
+    total_price: b.total_price,
+    base_price: b.base_price,
+    taxes: b.taxes,
+    payment_method: b.payment_method,
+    createdAt: b.createdAt
+  }))) %>;
+</script>
+<script src="/js/bookings.js"></script>
+
+<%- include('../partials/footer') %>

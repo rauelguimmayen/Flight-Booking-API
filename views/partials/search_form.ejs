@@ -1,0 +1,111 @@
+<div class="search-form-card bg-white rounded-4 shadow-lg p-4" id="searchFormCard">
+  <!-- Trip Type Tabs -->
+  <div class="d-flex gap-2 mb-4 flex-wrap" id="tripTypeTabs">
+    <button type="button" class="btn btn-sm trip-tab active" data-type="round-trip">
+      <i class="bi bi-arrow-left-right me-1"></i>Round Trip
+    </button>
+    <button type="button" class="btn btn-sm trip-tab" data-type="one-way">
+      <i class="bi bi-arrow-right me-1"></i>One Way
+    </button>
+    <button type="button" class="btn btn-sm trip-tab" data-type="multi-city">
+      <i class="bi bi-diagram-3 me-1"></i>Multi-City
+    </button>
+  </div>
+
+  <form action="/search" method="GET" id="searchForm">
+    <input type="hidden" name="tripType" id="tripTypeInput" value="round-trip" />
+
+    <!-- One-way / Round-trip section -->
+    <div id="standardSearch">
+      <div class="row g-3 align-items-end">
+        <!-- Origin -->
+        <div class="col-12 col-md-3">
+          <label class="form-label text-muted small fw-600">
+            <i class="bi bi-geo-alt me-1"></i>From
+          </label>
+          <div class="airport-input-wrapper position-relative">
+            <input type="text" class="form-control rounded-3 airport-input" name="originDisplay"
+              id="originDisplay" placeholder="City or airport" autocomplete="off" />
+            <input type="hidden" name="originCode" id="originCode" />
+            <div class="airport-suggestions dropdown-menu w-100" id="originSuggestions"></div>
+          </div>
+        </div>
+
+        <!-- Swap -->
+        <div class="col-auto d-none d-md-flex align-items-end pb-1">
+          <button type="button" class="btn btn-outline-primary btn-sm rounded-circle p-2" id="swapBtn" title="Swap airports">
+            <i class="bi bi-arrow-left-right"></i>
+          </button>
+        </div>
+
+        <!-- Destination -->
+        <div class="col-12 col-md-3">
+          <label class="form-label text-muted small fw-600">
+            <i class="bi bi-geo me-1"></i>To
+          </label>
+          <div class="airport-input-wrapper position-relative">
+            <input type="text" class="form-control rounded-3 airport-input" name="destinationDisplay"
+              id="destinationDisplay" placeholder="City or airport" autocomplete="off" />
+            <input type="hidden" name="destinationCode" id="destinationCode" />
+            <div class="airport-suggestions dropdown-menu w-100" id="destinationSuggestions"></div>
+          </div>
+        </div>
+
+        <!-- Depart Date -->
+        <div class="col-12 col-md-2">
+          <label class="form-label text-muted small fw-600">
+            <i class="bi bi-calendar me-1"></i>Depart
+          </label>
+          <input type="date" class="form-control rounded-3" name="departDate" id="departDate"
+            min="<%= new Date().toISOString().split('T')[0] %>" />
+        </div>
+
+        <!-- Return Date -->
+        <div class="col-12 col-md-2" id="returnDateCol">
+          <label class="form-label text-muted small fw-600">
+            <i class="bi bi-calendar-check me-1"></i>Return
+          </label>
+          <input type="date" class="form-control rounded-3" name="returnDate" id="returnDate"
+            min="<%= new Date().toISOString().split('T')[0] %>" />
+        </div>
+
+        <!-- Passengers + Class + Search -->
+        <div class="col-12 col-md-2">
+          <label class="form-label text-muted small fw-600">
+            <i class="bi bi-people me-1"></i>Travelers
+          </label>
+          <div class="dropdown">
+            <button type="button" class="btn form-control rounded-3 text-start d-flex align-items-center justify-content-between"
+              id="passDropBtn" data-bs-toggle="dropdown">
+              <span id="passLabel">1 Passenger</span>
+              <i class="bi bi-chevron-down text-muted small"></i>
+            </button>
+            <div class="dropdown-menu p-3 shadow-lg rounded-4" style="min-width:260px;" id="passengerDropdown">
+              <%- include('../partials/passenger_selector') %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cabin Class -->
+        <div class="col-12 col-md-3">
+          <label class="form-label text-muted small fw-600">
+            <i class="bi bi-star me-1"></i>Cabin Class
+          </label>
+          <select class="form-select rounded-3" name="cabinClass" id="cabinClass">
+            <option value="economy">Economy</option>
+            <option value="premium_economy">Premium Economy</option>
+            <option value="business">Business</option>
+            <option value="first">First Class</option>
+          </select>
+        </div>
+
+        <!-- Search Button -->
+        <div class="col-12 col-md-2">
+          <button type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-700">
+            <i class="bi bi-search me-2"></i>Search
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,30 @@
+<div>
+  <% const types = [
+    { key: 'adults', label: 'Adults', desc: '12+ years', min: 1 },
+    { key: 'children', label: 'Children', desc: '2–11 years', min: 0 },
+    { key: 'infants', label: 'Infants', desc: 'Under 2', min: 0 }
+  ]; %>
+  <% types.forEach(t => { %>
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <div class="fw-600 small"><%= t.label %></div>
+      <div class="text-muted" style="font-size:11px"><%= t.desc %></div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle px-2 pax-minus" data-type="<%= t.key %>" data-min="<%= t.min %>">
+        <i class="bi bi-dash"></i>
+      </button>
+      <span class="fw-700 pax-count" id="pax-<%= t.key %>">0</span>
+      <button type="button" class="btn btn-outline-primary btn-sm rounded-circle px-2 pax-plus" data-type="<%= t.key %>">
+        <i class="bi bi-plus"></i>
+      </button>
+    </div>
+  </div>
+  <% }) %>
+
+  <input type="hidden" name="adults" id="pax-adults-val" value="1" />
+  <input type="hidden" name="children" id="pax-children-val" value="0" />
+  <input type="hidden" name="infants" id="pax-infants-val" value="0" />
+
+  <button type="button" class="btn btn-primary w-100 rounded-3 mt-2" id="applyPassengers">Done</button>
+</div>

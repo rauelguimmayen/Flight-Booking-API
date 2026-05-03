@@ -1,0 +1,108 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar', { page: 'confirmation' }) %>
+
+<div class="container py-5" style="max-width:700px;">
+  <!-- Success Animation -->
+  <div class="text-center mb-5">
+    <div class="success-circle mx-auto mb-4 d-flex align-items-center justify-content-center">
+      <i class="bi bi-check-lg text-success" style="font-size:3rem;"></i>
+    </div>
+    <h1 class="fw-800 mb-2">Booking Confirmed! 🎉</h1>
+    <p class="text-muted">Your booking reference is:</p>
+    <div class="booking-ref-badge d-inline-block bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-4 px-5 py-3 mb-4">
+      <span class="fw-800 fs-4 font-monospace"><%= ref %></span>
+    </div>
+  </div>
+
+  <% if (booking) { %>
+  <!-- Flight Details Card -->
+  <div class="bg-white rounded-4 border shadow-sm p-4 mb-4">
+    <div class="d-flex align-items-center gap-3 mb-4">
+      <div class="airline-badge-lg bg-primary text-white rounded-3 px-3 py-2 fw-800">
+        <%= booking.outbound_flight.airline_code %>
+      </div>
+      <div>
+        <div class="fw-700"><%= booking.outbound_flight.airline %></div>
+        <div class="text-muted small"><%= booking.outbound_flight.flight_number %></div>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-4 mb-4">
+      <div class="text-center">
+        <div class="fw-800 fs-3"><%= booking.outbound_flight.departure_time %></div>
+        <div class="text-muted small fw-600"><%= booking.outbound_flight.origin_code %></div>
+      </div>
+      <div class="flex-grow-1 text-center">
+        <div class="text-muted small mb-1"><%= booking.outbound_flight.duration %></div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="flex-grow-1 border-top"></div>
+          <i class="bi bi-airplane-fill text-primary"></i>
+          <div class="flex-grow-1 border-top"></div>
+        </div>
+        <div class="text-muted small mt-1">
+          <%= booking.outbound_flight.stops === 0 ? 'Non-stop' : booking.outbound_flight.stops + ' stop(s)' %>
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="fw-800 fs-3"><%= booking.outbound_flight.arrival_time %></div>
+        <div class="text-muted small fw-600"><%= booking.outbound_flight.destination_code %></div>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="row g-3 text-sm">
+      <div class="col-6 col-md-3">
+        <div class="text-muted small">Passenger</div>
+        <div class="fw-700"><%= booking.passenger_name %></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="text-muted small">Cabin</div>
+        <div class="fw-700 text-capitalize"><%= booking.cabin_class.replace('_',' ') %></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="text-muted small">Status</div>
+        <span class="badge bg-success fw-600 text-capitalize"><%= booking.status %></span>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="text-muted small">Total Paid</div>
+        <div class="fw-800 text-primary fs-5">$<%= booking.total_price %></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Info -->
+  <div class="alert alert-info rounded-4 d-flex align-items-center gap-2">
+    <i class="bi bi-envelope-fill fs-5 text-info"></i>
+    <span>A confirmation email has been sent to <strong><%= booking.passenger_email %></strong></span>
+  </div>
+  <% } %>
+
+  <!-- Action Buttons -->
+  <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mt-4">
+    <button class="btn btn-outline-secondary rounded-3 gap-2" onclick="window.print()">
+      <i class="bi bi-printer me-1"></i>Print / Download
+    </button>
+    <a href="/bookings" class="btn btn-primary rounded-3 gap-2">
+      <i class="bi bi-ticket-perforated me-1"></i>Manage Booking
+    </a>
+    <a href="/" class="btn btn-outline-primary rounded-3">
+      <i class="bi bi-search me-1"></i>Search More Flights
+    </a>
+  </div>
+</div>
+
+<style>
+  .success-circle {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: #d1fae5;
+    animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes scaleIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+</style>
+
+<%- include('../partials/footer') %>
