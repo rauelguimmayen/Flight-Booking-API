@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const methodOverride = require('method-override');
+const passport = require('./config/passport');
 const path = require('path');
 
 const app = express();
@@ -34,13 +35,19 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }, // 7 days
 }));
 
-// Pass session data to all views
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Pass user + session data to all views
 app.use((req, res, next) => {
   res.locals.session = req.session;
+  res.locals.currentUser = req.user || null;
   next();
 });
 
 // Routes
+app.use('/auth', require('./routes/auth'));
 app.use('/', require('./routes/home'));
 app.use('/search', require('./routes/search'));
 app.use('/booking', require('./routes/booking'));

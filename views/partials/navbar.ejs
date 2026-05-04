@@ -26,6 +26,64 @@
             <i class="bi bi-ticket-perforated me-1"></i>My Bookings
           </a>
         </li>
+
+        <!-- Auth Section -->
+        <li class="nav-item ms-2">
+          <% if (locals.currentUser) { %>
+          <!-- Logged In: Avatar Dropdown -->
+          <div class="dropdown">
+            <button class="btn p-0 border-0 d-flex align-items-center gap-2 nav-user-btn"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              <% if (locals.currentUser.avatar) { %>
+              <img src="<%= currentUser.avatar %>" alt="<%= currentUser.name %>"
+                class="rounded-circle border border-2 border-primary border-opacity-25"
+                style="width:36px;height:36px;object-fit:cover;" />
+              <% } else { %>
+              <div class="nav-avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-700"
+                style="width:36px;height:36px;font-size:0.75rem;">
+                <%= currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) %>
+              </div>
+              <% } %>
+              <span class="fw-600 small d-none d-lg-inline"><%= currentUser.name.split(' ')[0] %></span>
+              <i class="bi bi-chevron-down text-muted small d-none d-lg-inline"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end rounded-4 shadow border-0 mt-2 py-2" style="min-width:200px;">
+              <li class="px-3 py-2 border-bottom mb-1">
+                <div class="fw-700 small"><%= currentUser.name %></div>
+                <div class="text-muted" style="font-size:11px"><%= currentUser.email %></div>
+              </li>
+              <li>
+                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2" href="/auth/profile">
+                  <i class="bi bi-person text-primary"></i>My Profile
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item rounded-3 py-2 px-3 d-flex align-items-center gap-2" href="/bookings">
+                  <i class="bi bi-ticket-perforated text-primary"></i>My Bookings
+                </a>
+              </li>
+              <li><hr class="dropdown-divider my-1"></li>
+              <li>
+                <form action="/auth/logout" method="POST" class="px-2">
+                  <button type="submit" class="btn btn-light btn-sm w-100 rounded-3 text-danger fw-600 d-flex align-items-center gap-2 justify-content-center py-2">
+                    <i class="bi bi-box-arrow-right"></i>Sign Out
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+          <% } else { %>
+          <!-- Logged Out: Login + Register -->
+          <div class="d-flex align-items-center gap-2">
+            <a href="/auth/login" class="btn btn-outline-primary btn-sm rounded-3 fw-600 px-3">
+              Sign In
+            </a>
+            <a href="/auth/register" class="btn btn-primary btn-sm rounded-3 fw-600 px-3">
+              Sign Up
+            </a>
+          </div>
+          <% } %>
+        </li>
       </ul>
     </div>
   </div>
