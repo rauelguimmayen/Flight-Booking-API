@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const methodOverride = require('method-override');
-const passport = require('./config/passport');
+const passport = require('./passport');
 const path = require('path');
 
 const app = express();
@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/auth', require('./routes/auth'));
+app.use('/auth', require('./auth'));
 app.use('/', require('./routes/home'));
 app.use('/search', require('./routes/search'));
 app.use('/booking', require('./routes/booking'));
