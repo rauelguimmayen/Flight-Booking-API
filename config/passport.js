@@ -5,7 +5,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
 // ===== SERIALIZE / DESERIALIZE =====
-/*passport.serializeUser((user, done) => done(null, user._id));
+passport.serializeUser((user, done) => done(null, user._id));
 
 passport.deserializeUser(async (id, done) => {
   try {
@@ -14,7 +14,7 @@ passport.deserializeUser(async (id, done) => {
   } catch (err) {
     done(err);
   }
-});*/
+});
 
 // ===== LOCAL STRATEGY =====
 passport.use(new LocalStrategy(
