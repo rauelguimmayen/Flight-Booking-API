@@ -17,7 +17,7 @@ passport.deserializeUser(async (id, done) => {
 });*/
 
 // ===== LOCAL STRATEGY =====
-/*passport.use(new LocalStrategy(
+passport.use(new LocalStrategy(
   { usernameField: 'email' },
   async (email, password, done) => {
     try {
@@ -31,8 +31,8 @@ passport.deserializeUser(async (id, done) => {
       return done(err);
     }
   }
-));*/
-passport.use(new GoogleStrategy({
+));
+/*passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback",
@@ -50,7 +50,7 @@ passport.serializeUser(function(user,done){
 
 passport.deserializeUser(function(user, done){
   done(null, user);
-});
+});*/
 // ===== GOOGLE STRATEGY =====
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id') {
   passport.use(new GoogleStrategy(
