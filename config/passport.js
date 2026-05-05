@@ -5,7 +5,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
 // ===== SERIALIZE / DESERIALIZE =====
-passport.serializeUser((user, done) => done(null, user._id));
+/*passport.serializeUser((user, done) => done(null, user._id));
 
 passport.deserializeUser(async (id, done) => {
   try {
@@ -14,10 +14,10 @@ passport.deserializeUser(async (id, done) => {
   } catch (err) {
     done(err);
   }
-});
+});*/
 
 // ===== LOCAL STRATEGY =====
-passport.use(new LocalStrategy(
+/*passport.use(new LocalStrategy(
   { usernameField: 'email' },
   async (email, password, done) => {
     try {
@@ -31,15 +31,33 @@ passport.use(new LocalStrategy(
       return done(err);
     }
   }
-));
+));*/
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback",
+  passReqToCallback: true
+},
 
+function(request, accessToken, refreshToken, profile, done){
+  return done(null, profile)
+}
+))
+
+passport.serializeUser(function(user,done){
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done){
+  done(null, user);
+});
 // ===== GOOGLE STRATEGY =====
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id') {
   passport.use(new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/users/google/callback',
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/auth/google/callback',
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
