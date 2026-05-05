@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/auth', require('./auth'));
+app.use('/auth', require('./routes/auth'));
 app.use('/', require('./routes/home'));
 app.use('/search', require('./routes/search'));
 app.use('/booking', require('./routes/booking'));
