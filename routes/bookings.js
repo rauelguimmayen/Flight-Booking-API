@@ -1,25 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
+const bookingsController = require('../controllers/bookings');
+const { requireAuth } = require('../middleware/auth');
+
 
 // GET /bookings - List all bookings
-router.get('/', async (req, res) => {
-  try {
-    const bookings = await Booking.find().sort({ createdAt: -1 }).limit(50);
-    res.render('pages/bookings', { title: 'My Bookings – SkyRoam', bookings });
-  } catch (err) {
-    res.status(500).render('pages/error', { title: 'Error', error: err.message });
-  }
-});
+router.get('/', requireAuth, bookingsController.myBookings);
+
 
 // POST /bookings/:id/cancel - Cancel a booking
-router.post('/:id/cancel', async (req, res) => {
-  try {
-    await Booking.findByIdAndUpdate(req.params.id, { status: 'cancelled' });
-    res.redirect('/bookings');
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.post('/:id/cancel', requireAuth, bookingsController.cancelSpecificBooking);
 
 module.exports = router;
